@@ -2,6 +2,7 @@
 #define MAX_INP 10000
 #define MAX_STRLEN 300
 #define MAX_DEFS 100
+#define MAX_TOK_LEN 15
 
 #define DEF 70
 #define INC 71
@@ -9,6 +10,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
+#include<ctype.h>
 #include "Tokens.h"
 
 typedef struct Tokens{
@@ -24,7 +26,8 @@ typedef struct Directives{
 
 
 Directive *directives(char *);
-Token *tokenize(char *);
+int tokenize(char *);
+Token *getTokens(char *);
 
 int main(int argc, char *argv[]) {
 
@@ -56,15 +59,17 @@ int main(int argc, char *argv[]) {
       // directives(input);
       
       // printf("Input: %s\n", input);
-      int i = 0;
-      char *line = strtok(input, ";");
-      while(line != NULL) {
-	// stmts[i] = (char *)malloc(sizeof(char) * MAX_STRLEN);
-	// stmts[i] = line;
-	tokenize(line);
-	line = strtok(NULL, ";");
-	i++;
-      }
+      /* int i = 0; */
+      /* char *line = strtok(input, ";"); */
+      /* while(line != NULL) { */
+      /* 	// stmts[i] = (char *)malloc(sizeof(char) * MAX_STRLEN); */
+      /* 	// stmts[i] = line; */
+      /* 	tokenize(line); */
+      /* 	line = strtok(NULL, ";"); */
+      /* 	i++; */
+      /* } */
+
+      getTokens(input);
       
     }
   }
@@ -96,7 +101,77 @@ Directive *directives(char *input) {
   }
 }
 
-Token *tokenize(char *line) {
+Token *getTokens(char* input) {
+  char token[MAX_TOK_LEN];
+  // token = (char *)malloc(sizeof(char) * MAX_TOK_LEN);
+
+  int i;
+  int slen = 0;
+  for(i = 0; i < strlen(input); i++) {
+    //Skip if whitespace
+    if(isspace(input[i])) {
+      continue;
+    }
+    //If the first character of the token is alphabet
+    if(isalpha(input[i])) {
+      //printf("A:%c ", input[i]);
+      token[slen] = input[i];
+      slen++;
+      while(i < strlen(input)) {
+        
+        if(isalnum(input[i+1])) {
+          //printf("A:%c ", input[i+1]);
+          token[slen] = input[i+1];
+          slen++;
+        }
+        else {
+          token[slen] = '\0';
+          slen = 0;
+          printf("%s ", token);
+          printf(" ");
+          strcpy(token, "");
+          break;
+        }
+        i++;
+      }
+      
+    }
+    //If the first character is a num
+    if(isdigit(input[i])) {
+      printf("D:%c ", input[i]);
+      while(i < strlen(input)) {
+        
+        if(isdigit(input[i+1])) {
+          printf("D:%c ", input[i+1]);
+        }
+        else {
+          printf(" ");
+          break;
+        }
+        i++;
+      }
+    }
+
+    //If the first character is a special character
+    if(ispunct(input[i])) {
+      printf("P:%c ", input[i]);
+      while(i < strlen(input)) {
+        
+        if(ispunct(input[i+1])) {
+          printf("P:%c ", input[i+1]);
+        }
+        else {
+          printf(" ");
+          break;
+        }
+        i++;
+      }
+      
+    }
+  }
+}
+
+int tokenize(char *line) {
   int len = strlen(line);
   char *token = strtok(line, " ");
 

@@ -98,7 +98,7 @@ Token *getTokens(char* input) {
 
   for(i = 0; i < strlen(input); i++) {
     //Skip if whitespace
-    if(isspace(input[i])) {
+    if(isspace(input[i]) || input[i] == ';') {
       continue;
     }
 
@@ -158,7 +158,6 @@ Token *getTokens(char* input) {
       token[slen] = input[i];
       slen++;
       while(i < strlen(input)) {
-        
         if(ispunct(input[i+1])) {
           // printf("P:%c ", input[i+1]);
           token[slen] = input[i+1];
@@ -168,6 +167,7 @@ Token *getTokens(char* input) {
           token[slen] = '\0';
           slen = 0;
           printf("%s ", token);
+          printf("%d ", getType(token));
           printf(" ");
           strcpy(token, "");
           break;
@@ -184,48 +184,88 @@ int isunderscore(char c) {
 }
 
 int getType(char *token) {
-  // int len = strlen(line);
-  // char *token = strtok(line, " ");
-
-  // while(token != NULL) {
-  //   printf("Token: %s\n", token);
-  //   //Remove \n character
-  //   if(token[strlen(token)-1] == '\n') {
-  //     token[strlen(token)-1] = '\0';
-  //   }
-    
-    //Keywords
+    // Keywords
     if(0 == strcmp(token, "auto")) return AUTO;
-    if(0 == strcmp(token, "break")) return BREAK;
-    if(0 == strcmp(token, "case")) return CASE;
-    if(0 == strcmp(token, "char")) return CHAR;
-    if(0 == strcmp(token, "const")) return CONST;
-    if(0 == strcmp(token, "continue")) return CONTINUE;
-    if(0 == strcmp(token, "default")) return DEFAULT;
-    if(0 == strcmp(token, "do")) return DO;
-    if(0 == strcmp(token, "double")) return DOUBLE;
-    if(0 == strcmp(token, "else")) return ELSE;
-    if(0 == strcmp(token, "enum")) return ENUM;
-    if(0 == strcmp(token, "extern")) return EXTERN;
-    if(0 == strcmp(token, "float")) return FLOAT;
-    if(0 == strcmp(token, "for")) return FOR;
-    if(0 == strcmp(token, "goto")) return GOTO;
-    if(0 == strcmp(token, "if")) return IF;
-    if(0 == strcmp(token, "int")) return INT;
-    if(0 == strcmp(token, "long")) return LONG;
-    if(0 == strcmp(token, "register")) return REGISTER;
-    if(0 == strcmp(token, "return")) return RETURN;
-    if(0 == strcmp(token, "short")) return SHORT;
-    if(0 == strcmp(token, "signed")) return SIGNED;
-    if(0 == strcmp(token, "sizeof")) return SIZEOF;
-    if(0 == strcmp(token, "static")) return STATIC;
-    if(0 == strcmp(token, "struct")) return STRUCT;
-    if(0 == strcmp(token, "switch")) return SWITCH;
-    if(0 == strcmp(token, "typedef")) return TYPEDEF;
-    if(0 == strcmp(token, "union")) return UNION;
-    if(0 == strcmp(token, "unsigned")) return UNSIGNED;
-    if(0 == strcmp(token, "void")) return VOID;
-    if(0 == strcmp(token, "volatile")) return VOLATILE;
-    if(0 == strcmp(token, "while")) return WHILE;
-    else return ID;
+    else if(0 == strcmp(token, "break")) return BREAK;
+    else if(0 == strcmp(token, "case")) return CASE;
+    else if(0 == strcmp(token, "char")) return CHAR;
+    else if(0 == strcmp(token, "const")) return CONST;
+    else if(0 == strcmp(token, "continue")) return CONTINUE;
+    else if(0 == strcmp(token, "default")) return DEFAULT;
+    else if(0 == strcmp(token, "do")) return DO;
+    else if(0 == strcmp(token, "double")) return DOUBLE;
+    else if(0 == strcmp(token, "else")) return ELSE;
+    else if(0 == strcmp(token, "enum")) return ENUM;
+    else if(0 == strcmp(token, "extern")) return EXTERN;
+    else if(0 == strcmp(token, "float")) return FLOAT;
+    else if(0 == strcmp(token, "for")) return FOR;
+    else if(0 == strcmp(token, "goto")) return GOTO;
+    else if(0 == strcmp(token, "if")) return IF;
+    else if(0 == strcmp(token, "int")) return INT;
+    else if(0 == strcmp(token, "long")) return LONG;
+    else if(0 == strcmp(token, "register")) return REGISTER;
+    else if(0 == strcmp(token, "return")) return RETURN;
+    else if(0 == strcmp(token, "short")) return SHORT;
+    else if(0 == strcmp(token, "signed")) return SIGNED;
+    else if(0 == strcmp(token, "sizeof")) return SIZEOF;
+    else if(0 == strcmp(token, "static")) return STATIC;
+    else if(0 == strcmp(token, "struct")) return STRUCT;
+    else if(0 == strcmp(token, "switch")) return SWITCH;
+    else if(0 == strcmp(token, "typedef")) return TYPEDEF;
+    else if(0 == strcmp(token, "union")) return UNION;
+    else if(0 == strcmp(token, "unsigned")) return UNSIGNED;
+    else if(0 == strcmp(token, "void")) return VOID;
+    else if(0 == strcmp(token, "volatile")) return VOLATILE;
+    else if(0 == strcmp(token, "while")) return WHILE;
+
+    // Operators
+    else if(0 == strcmp(token, "+")) return PLUS;
+    else if(0 == strcmp(token, "-")) return SUB;
+    else if(0 == strcmp(token, "*")) return MUL;
+    else if(0 == strcmp(token, "/")) return DIV;
+    else if(0 == strcmp(token, "%")) return MOD;
+
+    // Assignment
+    else if(0 == strcmp(token, "=")) return ASSIGN;
+    else if(0 == strcmp(token, "+=")) return PLUS_ASSIGN;
+    else if(0 == strcmp(token, "-=")) return SUB_ASSIGN;
+    else if(0 == strcmp(token, "*=")) return MUL_ASSIGN;
+    else if(0 == strcmp(token, "/=")) return DIV_ASSIGN;
+    else if(0 == strcmp(token, "%=")) return MOD_ASSIGN;
+
+    // Relational
+    else if(0 == strcmp(token, "==")) return EQUALTO;
+    else if(0 == strcmp(token, ">")) return GT;
+    else if(0 == strcmp(token, "<")) return LT;
+    else if(0 == strcmp(token, "!=")) return NOTEQUALTO;
+    else if(0 == strcmp(token, ">=")) return GEQUAL;
+    else if(0 == strcmp(token, "<=")) return LEQUAL;
+
+    // Logical
+    else if(0 == strcmp(token, "&&")) return AND_L;
+    else if(0 == strcmp(token, "||")) return OR_L;
+    else if(0 == strcmp(token, "!")) return NOT_L;
+
+    // Bitwise
+    else if(0 == strcmp(token, "&")) return AND;
+    else if(0 == strcmp(token, "|")) return OR;
+    else if(0 == strcmp(token, "^")) return XOR;
+    else if(0 == strcmp(token, "~")) return COMP;
+    else if(0 == strcmp(token, "<<")) return SHIFTL;
+    else if(0 == strcmp(token, ">>")) return SHIFTR;
+
+    // Others
+    else if(0 == strcmp(token, "(")) return LEFTPAR;
+    else if(0 == strcmp(token, ")")) return RIGHTPAR;
+    else if(0 == strcmp(token, "{")) return LEFTCUR;
+    else if(0 == strcmp(token, "}")) return RIGHTCUR;
+    else if(0 == strcmp(token, "[")) return LEFTSQR;
+    else if(0 == strcmp(token, "]")) return RIGHTSQR;
+    else if(0 == strcmp(token, ",")) return COMMA;
+    else if(0 == strcmp(token, "*")) return POINTR;
+        
+
+    else return -1;
+
+    
 }

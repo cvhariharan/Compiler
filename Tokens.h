@@ -1,3 +1,4 @@
+#define ID 0
 // Keywords
 #define AUTO 2
 #define BREAK 3
@@ -70,3 +71,12 @@
 #define SHIFTL 60
 #define SHIFTR 61
 
+// Others
+#define LEFTPAR 62
+#define RIGHTPAR 63
+#define LEFTCUR 64
+#define RIGHTCUR 65
+#define COMMA 66
+#define LEFTSQR 67
+#define RIGHTSQR 68
+#define POINTR 69

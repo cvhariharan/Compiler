@@ -80,3 +80,6 @@
 #define LEFTSQR 67
 #define RIGHTSQR 68
 #define POINTR 69
+#define QUOTE 70
+#define APST 72
+#define SEMICOLON 73

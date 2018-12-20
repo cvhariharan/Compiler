@@ -4,8 +4,8 @@
 #define MAX_DEFS 100
 #define MAX_TOK_LEN 15
 
-#define DEF 70
-#define INC 71
+#define DEF 100
+#define INC 101
 
 #include<stdio.h>
 #include<string.h>
@@ -29,6 +29,8 @@ Directive *directives(char *);
 int getType(char *);
 Token *getTokens(char *);
 int isunderscore(char);
+int isValidToken(char *);
+void findLongestToken(char *);
 
 int main(int argc, char *argv[]) {
 
@@ -37,7 +39,7 @@ int main(int argc, char *argv[]) {
   FILE *fp;
 
   filename = (char *)malloc(MAX_STRLEN * sizeof(char));
-
+  printf("Valid: %d\n", isValidToken(";"));
   if(argc == 2) {
     filename = argv[1];
     fp = fopen(filename, "r");
@@ -91,11 +93,12 @@ Directive *directives(char *input) {
 }
 
 Token *getTokens(char* input) {
-  char token[MAX_TOK_LEN];
+  char *token = malloc(sizeof(char) * MAX_TOK_LEN);
   // token = (char *)malloc(sizeof(char) * MAX_TOK_LEN);
   int i;
   int slen = 0;
 
+  //Try to match tokens character by character
   for(i = 0; i < strlen(input); i++) {
     //Skip if whitespace
     if(isspace(input[i]) || input[i] == ';') {
@@ -154,6 +157,7 @@ Token *getTokens(char* input) {
 
     //If the first character is a special character
     if(ispunct(input[i])) {
+      char *longToken = malloc(sizeof(char) * MAX_TOK_LEN);
       // printf("P:%c ", input[i]);
       token[slen] = input[i];
       slen++;
@@ -166,16 +170,39 @@ Token *getTokens(char* input) {
         else {
           token[slen] = '\0';
           slen = 0;
-          printf("%s ", token);
-          printf("%d ", getType(token));
-          printf(" ");
-          strcpy(token, "");
+          findLongestToken(token);
+          // printf("%s ", token);
+          // printf("%d ", getType(token));
+          // printf(" ");
+          // strcpy(token, "");
           break;
         }
         i++;
       }
     }
   }
+}
+
+void findLongestToken(char *token) {
+  char *temp = malloc(sizeof(char) * MAX_TOK_LEN);
+  char *longToken = malloc(sizeof(char) * MAX_TOK_LEN);
+  int i, m = 0;
+  for(i = 0; i < strlen(token); i++) {
+    temp[m++] = token[i];
+    temp[m] = '\0';
+    if(isValidToken(temp)) {
+      printf("\nT: %s\n", temp);
+    }
+    else {
+      m=0;
+      //To consider the already considered character in the invalid token
+      i--;
+    }
+  }
+}
+
+int isValidToken(char *token) {
+  return getType(token) > 0;
 }
 
 int isunderscore(char c) {
@@ -248,7 +275,7 @@ int getType(char *token) {
 
     // Bitwise
     else if(0 == strcmp(token, "&")) return AND;
-    else if(0 == strcmp(token, "|")) return OR;
+    else if(0 == strcmp(token, "|")) return OR; 
     else if(0 == strcmp(token, "^")) return XOR;
     else if(0 == strcmp(token, "~")) return COMP;
     else if(0 == strcmp(token, "<<")) return SHIFTL;
@@ -263,7 +290,9 @@ int getType(char *token) {
     else if(0 == strcmp(token, "]")) return RIGHTSQR;
     else if(0 == strcmp(token, ",")) return COMMA;
     else if(0 == strcmp(token, "*")) return POINTR;
-        
+    else if(0 == strcmp(token, "\"")) return QUOTE;
+    else if(0 == strcmp(token, "'")) return APST;
+    else if(0 == strcmp(token, ";")) return SEMICOLON;      
 
     else return -1;
 

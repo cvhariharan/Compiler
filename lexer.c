@@ -174,8 +174,22 @@ Token *getTokens(char* input) {
       }
     }
     if(!isCode) {
+      if(input[i] != '\\') {
+        //Escape character
         literal[literalLen++] = input[i];
         literal[literalLen] = '\0';
+      }
+      else {
+        if(input[i+1] == '\'' || input[i+1] == '\"') {
+          // To handle escaped quotes, set isCode to true so that when the quote is encountered, it can be treated is first quote
+          isCode = !isCode;
+          continue;
+        }
+        else {
+          // For handling \n, \t type of characters.
+          i++;
+        }
+      } 
     }
 
     //If the first character is a special character

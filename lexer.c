@@ -183,6 +183,10 @@ Token *getTokens(char* input) {
   }
 }
 
+/** 
+ * Method to find the longest valid token
+ * from the given longest special characters token
+ **/
 void findLongestToken(char *token) {
   char *temp = malloc(sizeof(char) * MAX_TOK_LEN);
   char *longToken = malloc(sizeof(char) * MAX_TOK_LEN);
@@ -191,14 +195,20 @@ void findLongestToken(char *token) {
     temp[m++] = token[i];
     temp[m] = '\0';
     if(isValidToken(temp)) {
-      printf("\nT: %s\n", temp);
+      // printf("%s ", temp);
+      // printf("%d ", getType(temp));
+      strcpy(longToken, temp);
     }
     else {
+      printf("%s ", longToken);
+      printf("%d ", getType(longToken));
       m=0;
       //To consider the already considered character in the invalid token
       i--;
     }
   }
+    printf("%s ", longToken);
+    printf("%d ", getType(longToken));
 }
 
 int isValidToken(char *token) {

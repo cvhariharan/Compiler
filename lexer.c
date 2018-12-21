@@ -98,15 +98,21 @@ Token *getTokens(char* input) {
   int i;
   int slen = 0;
 
+  char *literal = malloc(sizeof(char) * MAX_STRLEN);
+  int literalLen = 0;
+
+  //If set, treat the input as code else it could be comment or string literal
+  int isCode = 1;
+
   //Try to match tokens character by character
   for(i = 0; i < strlen(input); i++) {
     //Skip if whitespace
-    if(isspace(input[i]) || input[i] == ';') {
+    if((isspace(input[i]) || input[i] == ';') && isCode) {
       continue;
     }
 
     //If the first character of the token is alphabet or underscore
-    if(isalpha(input[i]) || isunderscore(input[i])) {
+    if((isalpha(input[i]) || isunderscore(input[i])) && isCode) {
       // printf("A:%c ", input[i]);
       token[slen] = input[i];
       slen++;
@@ -131,7 +137,7 @@ Token *getTokens(char* input) {
     }
 
     //If the first character is a num
-    if(isdigit(input[i])) {
+    if(isdigit(input[i]) && isCode) {
       // printf("D:%c ", input[i]);
       token[slen] = input[i];
       slen++;
@@ -155,8 +161,25 @@ Token *getTokens(char* input) {
       }
     }
 
+    //String and character literals
+    
+    if(input[i] == '\'' || input[i] == '\"') {
+      //To stop the characters inside quotes to be considered as tokens
+      isCode = !isCode;
+      if(isCode) {
+        literal[literalLen++] = input[i];
+        literal[literalLen] = '\0';
+        printf("Literal: %s ", literal);
+        literalLen = 0;
+      }
+    }
+    if(!isCode) {
+        literal[literalLen++] = input[i];
+        literal[literalLen] = '\0';
+    }
+
     //If the first character is a special character
-    if(ispunct(input[i])) {
+    if((ispunct(input[i]) && (input[i] != '\'' && input[i] != '\"')) && isCode) {
       char *longToken = malloc(sizeof(char) * MAX_TOK_LEN);
       // printf("P:%c ", input[i]);
       token[slen] = input[i];

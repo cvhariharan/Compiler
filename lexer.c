@@ -3,6 +3,7 @@
 #define MAX_STRLEN 300
 #define MAX_DEFS 100
 #define MAX_TOK_LEN 15
+#define MAX_TOKENS 10000
 
 #define DEF 100
 #define INC 101
@@ -30,13 +31,15 @@ int getType(char *);
 Token *getTokens(char *);
 int isunderscore(char);
 int isValidToken(char *);
-int findLongestToken(char *);
+int findLongestToken(char *, Token *, int *);
 
 int main(int argc, char *argv[]) {
 
   char *stmts[MAX_STM];
   char *input, *filename;
   FILE *fp;
+  Token *tokArr = malloc(sizeof(Token) * MAX_TOKENS);
+  int i;
 
   filename = (char *)malloc(MAX_STRLEN * sizeof(char));
   printf("Valid: %d\n", isValidToken(";"));
@@ -60,10 +63,17 @@ int main(int argc, char *argv[]) {
       //Preprocessor directives
 
       //Find tokens
-      getTokens(input);
+      tokArr = getTokens(input);
       
     }
+    for(i = 0; i < MAX_TOKENS; i++) {
+      if(tokArr[i].value != NULL) {
+        printf("%s: %d\n", tokArr[i].value, tokArr[i].type);
+      }
+    }
+
   }
+
   return 0;
 }
 
@@ -93,10 +103,12 @@ Directive *directives(char *input) {
 }
 
 Token *getTokens(char* input) {
+  Token *tokArr = malloc(sizeof(Token) * MAX_TOKENS);
   char *token = malloc(sizeof(char) * MAX_TOK_LEN);
   // token = (char *)malloc(sizeof(char) * MAX_TOK_LEN);
   int i;
   int slen = 0;
+  int tokenCount = 0;
 
   char *literal = malloc(sizeof(char) * MAX_STRLEN);
   int literalLen = 0;
@@ -126,8 +138,12 @@ Token *getTokens(char* input) {
         else {
           token[slen] = '\0';
           slen = 0;
-          printf("%s ", token);
-          printf("%d ", getType(token));
+          // printf("%s ", token);
+          // printf("%d ", getType(token));
+          tokArr[tokenCount].type = getType(token);
+          tokArr[tokenCount].value = malloc(sizeof(char) * MAX_TOK_LEN);
+          strcpy(tokArr[tokenCount].value, token);
+          tokenCount++;
           printf(" ");
           strcpy(token, "");
           break;
@@ -151,8 +167,11 @@ Token *getTokens(char* input) {
         else {
           token[slen] = '\0';
           slen = 0;
-          printf("%s ", token);
-
+          // printf("%s ", token);
+          tokArr[tokenCount].type = NUM;
+          tokArr[tokenCount].value = malloc(sizeof(char) * MAX_TOK_LEN);
+          strcpy(tokArr[tokenCount].value, token);
+          tokenCount++;
           printf(" ");
           strcpy(token, "");
           break;
@@ -169,7 +188,11 @@ Token *getTokens(char* input) {
       if(isCode) {
         literal[literalLen++] = input[i];
         literal[literalLen] = '\0';
-        printf("Literal: %s ", literal);
+        // printf("Literal: %s ", literal);
+        tokArr[tokenCount].type = S_LITERAL;
+        tokArr[tokenCount].value = malloc(sizeof(char) * MAX_TOK_LEN);
+        strcpy(tokArr[tokenCount].value, token);
+        tokenCount++;
         literalLen = 0;
       }
     }
@@ -207,7 +230,7 @@ Token *getTokens(char* input) {
         else {
           token[slen] = '\0';
           slen = 0;
-          findLongestToken(token);
+          findLongestToken(token, tokArr, &tokenCount);
           // printf("%s ", token);
           // printf("%d ", getType(token));
           // printf(" ");
@@ -218,13 +241,14 @@ Token *getTokens(char* input) {
       }
     }
   }
+  return tokArr;
 }
 
 /** 
  * Method to find the longest valid token
  * from the given longest special characters token
  **/
-int findLongestToken(char *token) {
+int findLongestToken(char *token, Token *tokArr, int *tokenCount) {
   char *temp = malloc(sizeof(char) * MAX_TOK_LEN);
   char *longToken = malloc(sizeof(char) * MAX_TOK_LEN);
   int i, m = 0;
@@ -237,15 +261,23 @@ int findLongestToken(char *token) {
       strcpy(longToken, temp);
     }
     else {
-      printf("%s ", longToken);
-      printf("%d ", getType(longToken));
+      // printf("%s ", longToken);
+      // printf("%d ", getType(longToken));
+      tokArr[*tokenCount].type = getType(token);
+      tokArr[*tokenCount].value = malloc(sizeof(char) * MAX_TOK_LEN);
+      strcpy(tokArr[*tokenCount].value, token);
+      (*tokenCount)++;
       m=0;
       //To consider the already considered character in the invalid token
       i--;
     }
   }
-    printf("%s ", longToken);
-    printf("%d ", getType(longToken));
+    // printf("%s ", longToken);
+    // printf("%d ", getType(longToken));
+    tokArr[*tokenCount].type = getType(token);
+    tokArr[*tokenCount].value = malloc(sizeof(char) * MAX_TOK_LEN);
+    strcpy(tokArr[*tokenCount].value, token);
+    (*tokenCount)++;
 }
 
 int isValidToken(char *token) {

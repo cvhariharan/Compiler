@@ -84,3 +84,5 @@
 #define APST 72
 #define SEMICOLON 73
 #define DOT 74
+#define NUM 75
+#define S_LITERAL 76

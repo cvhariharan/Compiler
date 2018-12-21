@@ -263,9 +263,9 @@ int findLongestToken(char *token, Token *tokArr, int *tokenCount) {
     else {
       // printf("%s ", longToken);
       // printf("%d ", getType(longToken));
-      tokArr[*tokenCount].type = getType(token);
+      tokArr[*tokenCount].type = getType(longToken);
       tokArr[*tokenCount].value = malloc(sizeof(char) * MAX_TOK_LEN);
-      strcpy(tokArr[*tokenCount].value, token);
+      strcpy(tokArr[*tokenCount].value, longToken);
       (*tokenCount)++;
       m=0;
       //To consider the already considered character in the invalid token
@@ -274,9 +274,9 @@ int findLongestToken(char *token, Token *tokArr, int *tokenCount) {
   }
     // printf("%s ", longToken);
     // printf("%d ", getType(longToken));
-    tokArr[*tokenCount].type = getType(token);
+    tokArr[*tokenCount].type = getType(longToken);
     tokArr[*tokenCount].value = malloc(sizeof(char) * MAX_TOK_LEN);
-    strcpy(tokArr[*tokenCount].value, token);
+    strcpy(tokArr[*tokenCount].value, longToken);
     (*tokenCount)++;
 }
 

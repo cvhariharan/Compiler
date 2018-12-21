@@ -83,3 +83,4 @@
 #define QUOTE 70
 #define APST 72
 #define SEMICOLON 73
+#define DOT 74

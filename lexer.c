@@ -30,7 +30,7 @@ int getType(char *);
 Token *getTokens(char *);
 int isunderscore(char);
 int isValidToken(char *);
-void findLongestToken(char *);
+int findLongestToken(char *);
 
 int main(int argc, char *argv[]) {
 
@@ -185,7 +185,7 @@ Token *getTokens(char* input) {
       token[slen] = input[i];
       slen++;
       while(i < strlen(input)) {
-        if(ispunct(input[i+1])) {
+        if((ispunct(input[i+1]) && (input[i+1] != '\'' && input[i+1] != '\"')) && isCode) {
           // printf("P:%c ", input[i+1]);
           token[slen] = input[i+1];
           slen++;
@@ -210,7 +210,7 @@ Token *getTokens(char* input) {
  * Method to find the longest valid token
  * from the given longest special characters token
  **/
-void findLongestToken(char *token) {
+int findLongestToken(char *token) {
   char *temp = malloc(sizeof(char) * MAX_TOK_LEN);
   char *longToken = malloc(sizeof(char) * MAX_TOK_LEN);
   int i, m = 0;
@@ -326,6 +326,7 @@ int getType(char *token) {
     else if(0 == strcmp(token, "\"")) return QUOTE;
     else if(0 == strcmp(token, "'")) return APST;
     else if(0 == strcmp(token, ";")) return SEMICOLON;      
+    else if(0 == strcmp(token, ".")) return DOT;
 
     else return -1;
 

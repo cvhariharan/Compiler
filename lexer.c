@@ -1,37 +1,10 @@
-#define MAX_STM 200
-#define MAX_INP 10000
-#define MAX_STRLEN 300
-#define MAX_DEFS 100
-#define MAX_TOK_LEN 15
-#define MAX_TOKENS 10000
-
-#define DEF 100
-#define INC 101
-
+#include "Lexer.h"
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
 #include<ctype.h>
 #include "Tokens.h"
 
-typedef struct Tokens{
-  int type;
-  char *value;
-} Token;
-
-typedef struct Directives{
-  char *directive;
-  int type;
-} Directive;
-
-
-
-Directive *directives(char *);
-int getType(char *);
-Token *getTokens(char *);
-int isunderscore(char);
-int isValidToken(char *);
-int findLongestToken(char *, Token *, int *);
 
 int main(int argc, char *argv[]) {
 
@@ -68,7 +41,7 @@ int main(int argc, char *argv[]) {
     }
     for(i = 0; i < MAX_TOKENS; i++) {
       if(tokArr[i].value != NULL) {
-        printf("%s: %d\n", tokArr[i].value, tokArr[i].type);
+        printf("%s : %d\n", tokArr[i].value, tokArr[i].type);
       }
     }
 
@@ -330,6 +303,8 @@ int getType(char *token) {
     else if(0 == strcmp(token, "*")) return MUL;
     else if(0 == strcmp(token, "/")) return DIV;
     else if(0 == strcmp(token, "%")) return MOD;
+    else if(0 == strcmp(token, "++")) return INCR;
+    else if(0 == strcmp(token, "--")) return DECR;
 
     // Assignment
     else if(0 == strcmp(token, "=")) return ASSIGN;

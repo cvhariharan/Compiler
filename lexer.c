@@ -6,49 +6,6 @@
 #include "Tokens.h"
 
 
-int main(int argc, char *argv[]) {
-
-  char *stmts[MAX_STM];
-  char *input, *filename;
-  FILE *fp;
-  Token *tokArr = malloc(sizeof(Token) * MAX_TOKENS);
-  int i;
-
-  filename = (char *)malloc(MAX_STRLEN * sizeof(char));
-  printf("Valid: %d\n", isValidToken(";"));
-  if(argc == 2) {
-    filename = argv[1];
-    fp = fopen(filename, "r");
-
-    fseek(fp, 0, SEEK_END);
-    long fsize = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-
-    input = (char *)malloc(sizeof(char) * (fsize+1));
-    
-    
-    if(fp == NULL) {
-      printf("Could not open the file.\n");
-    }
-
-    else {
-      fread(input, fsize, 1, fp);
-      //Preprocessor directives
-
-      //Find tokens
-      tokArr = getTokens(input);
-      
-    }
-    for(i = 0; i < MAX_TOKENS; i++) {
-      if(tokArr[i].value != NULL) {
-        printf("%s : %d\n", tokArr[i].value, tokArr[i].type);
-      }
-    }
-
-  }
-
-  return 0;
-}
 
 Directive *directives(char *input) {
   char *token = strtok(input, "\n");
@@ -113,7 +70,12 @@ Token *getTokens(char* input) {
           slen = 0;
           // printf("%s ", token);
           // printf("%d ", getType(token));
-          tokArr[tokenCount].type = getType(token);
+          if(getType(token) == -1) {
+            tokArr[tokenCount].type = ID;
+          }
+          else {
+            tokArr[tokenCount].type = getType(token);
+          }
           tokArr[tokenCount].value = malloc(sizeof(char) * MAX_TOK_LEN);
           strcpy(tokArr[tokenCount].value, token);
           tokenCount++;

@@ -49,7 +49,7 @@ Token *getTokens(char* input) {
   //Try to match tokens character by character
   for(i = 0; i < strlen(input); i++) {
     //Skip if whitespace
-    if((isspace(input[i]) || input[i] == ';') && isCode) {
+    if(isspace(input[i]) && isCode) {
       continue;
     }
 

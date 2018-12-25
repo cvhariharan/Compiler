@@ -87,3 +87,4 @@
 #define NUM 75
 #define S_LITERAL 76
 #define END 78
+#define FUNC 79

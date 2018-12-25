@@ -58,6 +58,10 @@ int main(int argc, char *argv[]) {
     // printf("%s \n", input);
     for(i = 0; i < MAX_TOKENS; i++) {
       if(tokArr[i].value != NULL) {
+        if((tokArr[i].type == ID) && (tokArr[i+1].type == LEFTPAR)) {
+          // printf("Function %s\n", tokArr[i].value);
+          tokArr[i].type = FUNC;
+        }
         // printf("%s : %d\n", tokArr[i].value, tokArr[i].type);
       }
     }
@@ -99,6 +103,13 @@ int parseProgram() {
   while(1) {
     if(tokArr[tokenIndex].value == NULL){
       break;
+    }
+    else if((isType(tokArr[tokenIndex].type)) && (tokArr[tokenIndex+1].type == FUNC)) {
+      printf("Parsing function prototype %s\n", tokArr[tokenIndex+1].value);
+      parseType();
+      eat(FUNC);
+      parseParams();
+      eat(SEMICOLON);
     }
     else if(isType(tokArr[tokenIndex].type)) {
       // printf("Parse declaration\n");
@@ -201,4 +212,14 @@ int parseFactor() {
     eat(RIGHTCUR);
   }
   return 1;
+}
+
+int parseParams() {
+  eat(LEFTPAR);
+  while(tokArr[tokenIndex].type != RIGHTPAR) {
+    parseType();
+    eat(ID);
+    eat(COMMA);
+  }
+  eat(RIGHTPAR);
 }

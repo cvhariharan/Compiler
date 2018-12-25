@@ -176,6 +176,9 @@ Token *getTokens(char* input) {
       }
     }
   }
+  //Add EOF
+  tokArr[i].type = getType("$");
+  tokArr[i].value = "$";
   return tokArr;
 }
 
@@ -310,6 +313,7 @@ int getType(char *token) {
     else if(0 == strcmp(token, "'")) return APST;
     else if(0 == strcmp(token, ";")) return SEMICOLON;      
     else if(0 == strcmp(token, ".")) return DOT;
+    else if(0 == strcmp(token, "$")) return END;
 
     else return -1;
 

@@ -6,6 +6,19 @@
 #include<ctype.h>
 #include<string.h>
 
+// Function prototypes
+int parseProgram();
+int parseDeclaration();
+int parseType();
+int parseAssignment();
+int parseExpression();
+int parseTerm();
+int parseFactor();
+void advance();
+void eat(int);
+void error();
+int isType(int);
+
 int tokenIndex = 0;
 Token *tokArr;
 int main(int argc, char *argv[]) {
@@ -67,7 +80,12 @@ void eat(int type) {
 }
 
 void error() {
-  printf("Syntax error!\n");
+  printf("Syntax error at ");
+  while(tokArr[tokenIndex].type != SEMICOLON) {
+    printf("%s ", tokArr[tokenIndex].value);
+    tokenIndex++;
+  }
+  printf("\n");
   exit(0);
 }
 
@@ -77,11 +95,20 @@ int isType(int token) {
 
 int parseProgram() {
   // printf("Oth %s\n", tokArr[tokenIndex].value);
-  if(isType(tokArr[tokenIndex].type)) {
-    // printf("Parse declaration\n");
-    parseDeclaration();
+  while(1) {
+    if(tokArr[tokenIndex].type != END){
+      break;
+    }
+    else if(isType(tokArr[tokenIndex].type)) {
+      // printf("Parse declaration\n");
+      parseDeclaration();
+    }
   }
+  printf("Code successfully parsed\n");
+  return 1;
 }
+
+// TODO: add separate global declararion and prevent expression
 
 int parseDeclaration() {
   // printf("Parse declaration 1st token: %s\n", tokArr[tokenIndex].value);
@@ -90,11 +117,30 @@ int parseDeclaration() {
     // printf("Parse declaration ID token: %s\n", tokArr[tokenIndex].value);
     eat(ID);
     if(tokArr[tokenIndex].type == ASSIGN) {
-      eat(ASSIGN);
+      parseAssignment();
       parseExpression();
     }
   }
   eat(SEMICOLON);
+  return 1;
+}
+
+int parseAssignment() {
+  switch(tokArr[tokenIndex].type) {
+    case ASSIGN:  eat(ASSIGN);
+                  break;
+    case PLUS_ASSIGN: eat(PLUS_ASSIGN);
+                      break;
+    case SUB_ASSIGN:  eat(SUB_ASSIGN);
+                      break;
+    case MUL_ASSIGN:  eat(MUL_ASSIGN);
+                      break;
+    case DIV_ASSIGN:  eat(DIV_ASSIGN);
+                      break;
+    case MOD_ASSIGN:  eat(MOD_ASSIGN);
+                      break;
+    default: error();
+  } 
 }
 
 int parseType() {
@@ -108,11 +154,49 @@ int parseType() {
   else {
     error();
   }
+  return 1;
 }
 
 int parseExpression() {
-  eat(NUM);
+  parseTerm();
+  switch(tokArr[tokenIndex].type) {
+    case PLUS:  eat(PLUS);
+                parseTerm();
+                break; 
+    case SUB:   eat(SUB);
+                parseTerm();
+                break;
+  }
+  return 1;
 }
+
+int parseTerm() {
+  parseFactor();
+  switch(tokArr[tokenIndex].type) {
+    case MUL:  eat(MUL);
+                parseFactor();
+                break; 
+    case DIV:   eat(DIV);
+                parseFactor();
+                break;
+  }
+}
+
+int parseFactor() {
+  switch(tokArr[tokenIndex].type) {
+    case ID:  eat(ID);
+              break;
+    case NUM: eat(NUM);
+              break;
+    default: error();
+  }
+  if(tokArr[tokenIndex].type == LEFTPAR) {
+    parseExpression();
+    eat(RIGHTCUR);
+  }
+  return 1;
+}
+
 // int parseFunctionCall() {
 //   // Parses function calls 
 //   int token = tokArr[tokenIndex].type;

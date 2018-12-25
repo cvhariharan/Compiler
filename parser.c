@@ -11,6 +11,7 @@ int parseProgram();
 int parseDeclaration();
 int parseType();
 int parseAssignment();
+int parseGlobalDeclaration();
 int parseExpression();
 int parseTerm();
 int parseFactor();
@@ -57,7 +58,7 @@ int main(int argc, char *argv[]) {
     // printf("%s \n", input);
     for(i = 0; i < MAX_TOKENS; i++) {
       if(tokArr[i].value != NULL) {
-        printf("%s : %d\n", tokArr[i].value, tokArr[i].type);
+        // printf("%s : %d\n", tokArr[i].value, tokArr[i].type);
       }
     }
     parseProgram();
@@ -101,7 +102,7 @@ int parseProgram() {
     }
     else if(isType(tokArr[tokenIndex].type)) {
       // printf("Parse declaration\n");
-      parseDeclaration();
+      parseGlobalDeclaration();
     }
   }
   printf("Code successfully parsed\n");
@@ -109,29 +110,23 @@ int parseProgram() {
 }
 
 // TODO: add separate global declararion and prevent expression
-// int parseGlobalDeclaration() {
-//   while(tokArr[tokenIndex].type != SEMICOLON) {
-//     parseType();
-//     // printf("Parse declaration ID token: %s\n", tokArr[tokenIndex].value);
-//     eat(ID);
-//     if(tokArr[tokenIndex].type == ASSIGN) {
-//       parseAssignment();
-//       parseExpression();
-//     }
-//   }
-//   eat(SEMICOLON);
-//   return 1;
-// }
+int parseGlobalDeclaration() {
+  parseType();
+  // printf("Parse declaration ID token: %s\n", tokArr[tokenIndex].value);
+  eat(ID);
+  parseAssignment();
+  parseFactor();
+  eat(SEMICOLON);
+  return 1;
+}
 
 int parseDeclaration() {
   // printf("Parse declaration 1st token: %s\n", tokArr[tokenIndex].value);
-  while(tokArr[tokenIndex].type != SEMICOLON) {
-    parseType();
-    // printf("Parse declaration ID token: %s\n", tokArr[tokenIndex].value);
-    eat(ID);
-    parseAssignment();
-    parseExpression();
-  }
+  parseType();
+  // printf("Parse declaration ID token: %s\n", tokArr[tokenIndex].value);
+  eat(ID);
+  parseAssignment();
+  parseExpression();
   eat(SEMICOLON);
   return 1;
 }

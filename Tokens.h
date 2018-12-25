@@ -86,3 +86,4 @@
 #define DOT 74
 #define NUM 75
 #define S_LITERAL 76
+#define END 78

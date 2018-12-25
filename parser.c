@@ -96,7 +96,7 @@ int isType(int token) {
 int parseProgram() {
   // printf("Oth %s\n", tokArr[tokenIndex].value);
   while(1) {
-    if(tokArr[tokenIndex].type != END){
+    if(tokArr[tokenIndex].value == NULL){
       break;
     }
     else if(isType(tokArr[tokenIndex].type)) {
@@ -109,6 +109,19 @@ int parseProgram() {
 }
 
 // TODO: add separate global declararion and prevent expression
+// int parseGlobalDeclaration() {
+//   while(tokArr[tokenIndex].type != SEMICOLON) {
+//     parseType();
+//     // printf("Parse declaration ID token: %s\n", tokArr[tokenIndex].value);
+//     eat(ID);
+//     if(tokArr[tokenIndex].type == ASSIGN) {
+//       parseAssignment();
+//       parseExpression();
+//     }
+//   }
+//   eat(SEMICOLON);
+//   return 1;
+// }
 
 int parseDeclaration() {
   // printf("Parse declaration 1st token: %s\n", tokArr[tokenIndex].value);
@@ -116,10 +129,8 @@ int parseDeclaration() {
     parseType();
     // printf("Parse declaration ID token: %s\n", tokArr[tokenIndex].value);
     eat(ID);
-    if(tokArr[tokenIndex].type == ASSIGN) {
-      parseAssignment();
-      parseExpression();
-    }
+    parseAssignment();
+    parseExpression();
   }
   eat(SEMICOLON);
   return 1;

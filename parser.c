@@ -15,6 +15,9 @@ int parseGlobalDeclaration();
 int parseExpression();
 int parseTerm();
 int parseFactor();
+int parseParams();
+int parseStatement();
+
 void advance();
 void eat(int);
 void error();
@@ -105,11 +108,19 @@ int parseProgram() {
       break;
     }
     else if((isType(tokArr[tokenIndex].type)) && (tokArr[tokenIndex+1].type == FUNC)) {
-      printf("Parsing function prototype %s\n", tokArr[tokenIndex+1].value);
       parseType();
       eat(FUNC);
       parseParams();
-      eat(SEMICOLON);
+      if(tokArr[tokenIndex].type == SEMICOLON) {
+        printf("Parsing function prototype \n");
+        // Function prototype
+        eat(SEMICOLON);
+      }
+      else if(tokArr[tokenIndex].type == LEFTCUR) {
+        // Function definition
+        printf("Parsing function \n");
+        parseBlock();
+      }
     }
     else if(isType(tokArr[tokenIndex].type)) {
       // printf("Parse declaration\n");
@@ -120,7 +131,29 @@ int parseProgram() {
   return 1;
 }
 
-// TODO: add separate global declararion and prevent expression
+int parseBlock() {
+  eat(LEFTCUR);
+  while(1) {
+    if(tokArr[tokenIndex].type == RIGHTCUR) {
+      break;
+    }
+    else if(isType(tokArr[tokenIndex].type)) {
+      parseDeclaration();
+    }
+    else if(tokArr[tokenIndex].type == ID) {
+      parseStatement();
+    }
+  }
+  eat(RIGHTCUR);
+}
+
+int parseStatement() {
+  eat(ID);
+  parseAssignment();
+  parseExpression();
+  eat(SEMICOLON);
+}
+
 int parseGlobalDeclaration() {
   parseType();
   // printf("Parse declaration ID token: %s\n", tokArr[tokenIndex].value);
@@ -216,7 +249,10 @@ int parseFactor() {
 
 int parseParams() {
   eat(LEFTPAR);
-  while(tokArr[tokenIndex].type != RIGHTPAR) {
+  while(1) {
+    if(tokArr[tokenIndex].type == RIGHTPAR) {
+      break;
+    }
     parseType();
     eat(ID);
     eat(COMMA);

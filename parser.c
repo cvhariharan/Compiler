@@ -101,6 +101,10 @@ int isType(int token) {
   return (token == INT || token == CHAR);
 }
 
+int isConditional(int token) {
+  return (token == IF || token == ELSE);
+}
+
 int parseProgram() {
   // printf("Oth %s\n", tokArr[tokenIndex].value);
   while(1) {
@@ -112,13 +116,13 @@ int parseProgram() {
       eat(FUNC);
       parseParams();
       if(tokArr[tokenIndex].type == SEMICOLON) {
-        printf("Parsing function prototype \n");
+        // printf("Parsing function prototype \n");
         // Function prototype
         eat(SEMICOLON);
       }
       else if(tokArr[tokenIndex].type == LEFTCUR) {
         // Function definition
-        printf("Parsing function \n");
+        // printf("Parsing function \n");
         parseBlock();
       }
     }
@@ -143,6 +147,10 @@ int parseBlock() {
     else if(tokArr[tokenIndex].type == ID) {
       parseStatement();
     }
+    else if(isConditional(tokArr[tokenIndex].type)) {
+      printf("Conditional \n");
+      parseConditional();
+    }
   }
   eat(RIGHTCUR);
 }
@@ -152,6 +160,29 @@ int parseStatement() {
   parseAssignment();
   parseExpression();
   eat(SEMICOLON);
+}
+
+int parseConditional() {
+  switch(tokArr[tokenIndex].type) {
+    case IF:  eat(IF);
+              eat(LEFTPAR);
+              parseExpression();
+              eat(RIGHTPAR);
+              break;
+    case ELSE:  if(tokArr[tokenIndex+1].type == IF) {
+                  eat(ELSE);
+                  eat(IF);
+                  eat(LEFTPAR);
+                  parseExpression();
+                  eat(RIGHTPAR);
+                }
+                else {
+                  eat(ELSE);
+                }
+                break;
+    default: error();
+  }
+  parseBlock();
 }
 
 int parseGlobalDeclaration() {

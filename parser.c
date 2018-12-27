@@ -11,6 +11,8 @@ int parseProgram();
 int parseDeclaration();
 int parseType();
 int parseAssignment();
+int parseBlock();
+int parseConditional(int *);
 int parseGlobalDeclaration();
 int parseExpression();
 int parseTerm();
@@ -23,8 +25,10 @@ void eat(int);
 void error();
 int isType(int);
 
+// Global Variables
 int tokenIndex = 0;
 Token *tokArr;
+
 int main(int argc, char *argv[]) {
   char *stmts[MAX_STM];
   char *input, *filename;
@@ -53,7 +57,6 @@ int main(int argc, char *argv[]) {
     else {
       fread(input, fsize, 1, fp);
       //Preprocessor directives
-
       //Find tokens
       tokArr = getTokens(input);
       
@@ -89,7 +92,7 @@ void eat(int type) {
 
 void error() {
   printf("Syntax error at ");
-  while(tokArr[tokenIndex].type != SEMICOLON) {
+  while(tokArr[tokenIndex].value != NULL) {
     printf("%s ", tokArr[tokenIndex].value);
     tokenIndex++;
   }
@@ -136,20 +139,27 @@ int parseProgram() {
 }
 
 int parseBlock() {
+  int ifDetected = 0;
   eat(LEFTCUR);
   while(1) {
     if(tokArr[tokenIndex].type == RIGHTCUR) {
+      ifDetected = 0;
       break;
     }
     else if(isType(tokArr[tokenIndex].type)) {
+      ifDetected = 0;
       parseDeclaration();
     }
     else if(tokArr[tokenIndex].type == ID) {
+      ifDetected = 0;
       parseStatement();
     }
     else if(isConditional(tokArr[tokenIndex].type)) {
-      printf("Conditional \n");
-      parseConditional();
+      // printf("Conditional \n");
+      if(tokArr[tokenIndex].type == IF) {
+        ifDetected = 1;
+      }
+      parseConditional(&ifDetected);
     }
   }
   eat(RIGHTCUR);
@@ -162,14 +172,15 @@ int parseStatement() {
   eat(SEMICOLON);
 }
 
-int parseConditional() {
+int parseConditional(int* ifDetected) {
   switch(tokArr[tokenIndex].type) {
     case IF:  eat(IF);
               eat(LEFTPAR);
               parseExpression();
               eat(RIGHTPAR);
               break;
-    case ELSE:  if(tokArr[tokenIndex+1].type == IF) {
+    case ELSE: if(*ifDetected) {
+                if(tokArr[tokenIndex+1].type == IF) {
                   eat(ELSE);
                   eat(IF);
                   eat(LEFTPAR);
@@ -177,9 +188,14 @@ int parseConditional() {
                   eat(RIGHTPAR);
                 }
                 else {
+                  *ifDetected = 0;
                   eat(ELSE);
                 }
-                break;
+              } 
+              else {
+                error();
+              }
+              break;
     default: error();
   }
   parseBlock();

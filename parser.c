@@ -161,6 +161,11 @@ int parseBlock() {
       }
       parseConditional(&ifDetected);
     }
+    else if(tokArr[tokenIndex].type == NUM) {
+      //Expression (No assignment as LVALUE is a number)
+      parseExpression();
+      eat(SEMICOLON);
+    }
   }
   eat(RIGHTCUR);
 }

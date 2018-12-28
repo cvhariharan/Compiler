@@ -166,6 +166,12 @@ int parseBlock() {
       parseExpression();
       eat(SEMICOLON);
     }
+    else if(tokArr[tokenIndex].type == FUNC) {
+      // Function call
+      eat(FUNC);
+      parseParams();
+      eat(SEMICOLON);
+    }
   }
   eat(RIGHTCUR);
 }
@@ -307,7 +313,9 @@ int parseParams() {
     }
     parseType();
     eat(ID);
-    eat(COMMA);
+    if(tokArr[tokenIndex].type != RIGHTPAR) {
+      eat(COMMA);
+    }
   }
   eat(RIGHTPAR);
 }

@@ -1,3 +1,6 @@
+#define FUNCTION_CALL 200
+#define FUNCTION_PROTO 205
+
 #include "Lexer.h"
 #include "Tokens.h"
 
@@ -17,7 +20,7 @@ int parseGlobalDeclaration();
 int parseExpression();
 int parseTerm();
 int parseFactor();
-int parseParams();
+int parseParams(int);
 int parseStatement();
 
 void advance();
@@ -117,7 +120,7 @@ int parseProgram() {
     else if((isType(tokArr[tokenIndex].type)) && (tokArr[tokenIndex+1].type == FUNC)) {
       parseType();
       eat(FUNC);
-      parseParams();
+      parseParams(FUNCTION_PROTO);
       if(tokArr[tokenIndex].type == SEMICOLON) {
         // printf("Parsing function prototype \n");
         // Function prototype
@@ -168,8 +171,9 @@ int parseBlock() {
     }
     else if(tokArr[tokenIndex].type == FUNC) {
       // Function call
+      printf("Function call\n");
       eat(FUNC);
-      parseParams();
+      parseParams(FUNCTION_CALL);
       eat(SEMICOLON);
     }
   }
@@ -305,14 +309,20 @@ int parseFactor() {
   return 1;
 }
 
-int parseParams() {
+int parseParams(int paramType) {
+  // For parsing params in function protoypes
   eat(LEFTPAR);
   while(1) {
     if(tokArr[tokenIndex].type == RIGHTPAR) {
       break;
     }
-    parseType();
-    eat(ID);
+    if(paramType == FUNCTION_PROTO) {
+      parseType();
+      eat(ID);
+    }
+    else {
+      parseExpression();
+    }
     if(tokArr[tokenIndex].type != RIGHTPAR) {
       eat(COMMA);
     }

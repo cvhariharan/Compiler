@@ -176,6 +176,11 @@ int parseBlock() {
       parseParams(FUNCTION_CALL);
       eat(SEMICOLON);
     }
+    else if(tokArr[tokenIndex].type == RETURN) {
+      eat(RETURN);
+      parseExpression();
+      eat(SEMICOLON);
+    }
   }
   eat(RIGHTCUR);
 }

@@ -3,6 +3,7 @@
 
 #include "Lexer.h"
 #include "Tokens.h"
+// #include "uthash.h"
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -22,6 +23,12 @@ int parseTerm();
 int parseFactor();
 int parseParams(int);
 int parseStatement();
+int parseSimpleExpression();
+int parseAndExpression();
+int parseRelationalExp();
+int parseRelational();
+int isAssignment(int);
+int isRelational(int);
 
 void advance();
 void eat(int);
@@ -31,6 +38,7 @@ int isType(int);
 // Global Variables
 int tokenIndex = 0;
 Token *tokArr;
+// SymbolTable *table = NULL;
 
 int main(int argc, char *argv[]) {
   char *stmts[MAX_STM];
@@ -80,6 +88,15 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
+// int addSymbol() {
+//   SymbolTable *symbol = malloc(sizeof(SymbolTable));
+//   if(tokArr[tokenIndex].type == NUM) {
+//     symbol->identifier = tokArr[tokenIndex].value;
+//     symbol->type = tokArr[tokenIndex].type;
+//   }
+  
+// }
+
 void advance() {
   tokenIndex++;
 }
@@ -109,6 +126,18 @@ int isType(int token) {
 
 int isConditional(int token) {
   return (token == IF || token == ELSE);
+}
+
+int isLoop(int token) {
+  return (token == FOR || token == WHILE);
+}
+
+int isAssignment(int token) {
+  return (token == ASSIGN || token == PLUS_ASSIGN || token == SUB_ASSIGN || token == MUL_ASSIGN || token == DIV_ASSIGN || token == MOD_ASSIGN);
+}
+
+int isRelational(int token) {
+  return (token == EQUALTO || token == GT || token == LT || token == NOTEQUALTO || token == GEQUAL || token == LEQUAL);
 }
 
 int parseProgram() {
@@ -166,30 +195,88 @@ int parseBlock() {
     }
     else if(tokArr[tokenIndex].type == NUM) {
       //Expression (No assignment as LVALUE is a number)
-      parseExpression();
+      ifDetected = 0;
+      parseSimpleExpression();
       eat(SEMICOLON);
     }
     else if(tokArr[tokenIndex].type == FUNC) {
       // Function call
-      printf("Function call\n");
+      // printf("Function call\n");
+      ifDetected = 0;
       eat(FUNC);
       parseParams(FUNCTION_CALL);
       eat(SEMICOLON);
     }
     else if(tokArr[tokenIndex].type == RETURN) {
+      ifDetected = 0;
       eat(RETURN);
       parseExpression();
       eat(SEMICOLON);
     }
+    // else if(isLoop(tokArr[tokenIndex].type)) {
+    //   // Loop
+    //   ifDetected = 0;
+    //   switch(tokArr[tokenIndex].type) {
+    //     case FOR: eat(FOR);
+    //               eat(LEFTPAR);
+    //               if(isType(tokArr[tokenIndex].type)) {
+    //                 eat(INT);
+    //               }
+    //               parseStatement();
+    //               eat(SEMICOLON);
+
+    //   }
+    // }
   }
   eat(RIGHTCUR);
+  return 1;
 }
 
 int parseStatement() {
-  eat(ID);
-  parseAssignment();
-  parseExpression();
+  if(isAssignment(tokArr[tokenIndex+1].type)) {
+    eat(ID);
+    parseAssignment();
+    parseExpression();
+  }
+  else {
+    // Simple expression
+    parseSimpleExpression();
+  }
   eat(SEMICOLON);
+}
+
+int parseSimpleExpression() {
+  parseAndExpression();
+  if(tokArr[tokenIndex].type == OR) {
+    eat(OR);
+    parseAndExpression();
+  }
+}
+
+int parseAndExpression() {
+  parseRelationalExp();
+  if(tokArr[tokenIndex].type == AND) {
+    eat(AND);
+    parseRelationalExp();
+  }
+}
+
+int parseUnaryRelExp() {
+  if(tokArr[tokenIndex].type == NOT_L) {
+    eat(NOT_L);
+    parseUnaryRelExp();
+  }
+  else {
+    parseRelationalExp();
+  }
+}
+
+int parseRelationalExp() {
+  parseExpression();
+  if(isRelational(tokArr[tokenIndex].type)) {
+    parseRelational();
+    parseExpression();
+  }
 }
 
 int parseConditional(int* ifDetected) {
@@ -260,6 +347,24 @@ int parseAssignment() {
   } 
 }
 
+int parseRelational() {
+  switch(tokArr[tokenIndex].type) {
+    case EQUALTO:  eat(EQUALTO);
+                  break;
+    case GT: eat(GT);
+                      break;
+    case LT:  eat(LT);
+                      break;
+    case NOTEQUALTO:  eat(NOTEQUALTO);
+                      break;
+    case GEQUAL:  eat(GEQUAL);
+                      break;
+    case LEQUAL:  eat(LEQUAL);
+                      break;
+    default: error();
+  } 
+}
+
 int parseType() {
   // printf("Parse type 1st token: %s\n", tokArr[tokenIndex].value);
   if(strcmp(tokArr[tokenIndex].value, "int") == 0) {
@@ -276,14 +381,21 @@ int parseType() {
 
 int parseExpression() {
   parseTerm();
-  switch(tokArr[tokenIndex].type) {
-    case PLUS:  eat(PLUS);
-                parseTerm();
-                break; 
-    case SUB:   eat(SUB);
-                parseTerm();
-                break;
+  if(isRelational(tokArr[tokenIndex].type)) {
+    parseRelational();
+    parseTerm();
   }
+  else {
+    switch(tokArr[tokenIndex].type) {
+      case PLUS:  eat(PLUS);
+                  parseTerm();
+                  break; 
+      case SUB:   eat(SUB);
+                  parseTerm();
+                  break;
+    }
+  }
+
   return 1;
 }
 

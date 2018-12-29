@@ -26,6 +26,7 @@ int parseStatement();
 int parseSimpleExpression();
 int parseAndExpression();
 int parseRelationalExp();
+int parseUnaryRelExp();
 int parseRelational();
 int isAssignment(int);
 int isRelational(int);
@@ -185,6 +186,7 @@ int parseBlock() {
     else if(tokArr[tokenIndex].type == ID) {
       ifDetected = 0;
       parseStatement();
+      eat(SEMICOLON);
     }
     else if(isConditional(tokArr[tokenIndex].type)) {
       // printf("Conditional \n");
@@ -213,20 +215,34 @@ int parseBlock() {
       parseExpression();
       eat(SEMICOLON);
     }
-    // else if(isLoop(tokArr[tokenIndex].type)) {
-    //   // Loop
-    //   ifDetected = 0;
-    //   switch(tokArr[tokenIndex].type) {
-    //     case FOR: eat(FOR);
-    //               eat(LEFTPAR);
-    //               if(isType(tokArr[tokenIndex].type)) {
-    //                 eat(INT);
-    //               }
-    //               parseStatement();
-    //               eat(SEMICOLON);
-
-    //   }
-    // }
+    else if(isLoop(tokArr[tokenIndex].type)) {
+      // Loop
+      ifDetected = 0;
+      switch(tokArr[tokenIndex].type) {
+        case FOR: eat(FOR);
+                  eat(LEFTPAR);
+                  if(isType(tokArr[tokenIndex].type)) {
+                    // printf("Loop global\n");
+                    parseGlobalDeclaration();
+                  }
+                  else {
+                    // printf("Loop local\n");
+                    parseStatement();
+                    eat(SEMICOLON);
+                  }
+                  parseStatement();
+                  eat(SEMICOLON);
+                  parseStatement();
+                  eat(RIGHTPAR);
+                  break;
+        case WHILE: eat(WHILE);
+                    eat(LEFTPAR);
+                    parseStatement();
+                    eat(RIGHTPAR);
+                    break;
+      }
+      parseBlock();
+    }
   }
   eat(RIGHTCUR);
   return 1;
@@ -242,7 +258,6 @@ int parseStatement() {
     // Simple expression
     parseSimpleExpression();
   }
-  eat(SEMICOLON);
 }
 
 int parseSimpleExpression() {
@@ -254,10 +269,10 @@ int parseSimpleExpression() {
 }
 
 int parseAndExpression() {
-  parseRelationalExp();
+  parseUnaryRelExp();
   if(tokArr[tokenIndex].type == AND) {
     eat(AND);
-    parseRelationalExp();
+    parseUnaryRelExp();
   }
 }
 
